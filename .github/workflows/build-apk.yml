@@ -20,22 +20,18 @@ jobs:
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
-        with:
-          api-level: 34
-          build-tools: 34.0.0
 
-      - name: Install Gradle via SDKMAN
+      - name: Download and install Gradle
         run: |
-          curl -s "https://get.sdkman.io" | bash
-          source "$HOME/.sdkman/bin/sdkman-init.sh"
-          sdk install gradle 8.2
-          echo "$HOME/.sdkman/candidates/gradle/current/bin" >> $GITHUB_PATH
+          wget https://services.gradle.org/distributions/gradle-8.2-bin.zip
+          unzip gradle-8.2-bin.zip -d /opt
+          echo "/opt/gradle-8.2/bin" >> $GITHUB_PATH
 
       - name: Create local.properties
-        run: echo "sdk.dir=$ANDROID_HOME" > local.properties
+        run: echo "sdk.dir=$ANDROID_SDK_ROOT" > local.properties
 
       - name: Build Debug APK
-        run: gradle assembleDebug --no-daemon --stacktrace
+        run: gradle assembleDebug --no-daemon --info
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
@@ -47,13 +43,11 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v1.0.0
-          name: LuntikWallet v1.0.0 (debug)
+          name: LuntikWallet v1.0.0
           body: |
-            WebView APK — black/red/white interface.
+            LuntikWallet debug APK.
+            HTML interface (black-red-white) packaged via WebView.
             applicationId: com.luntik.wallet
-            Built from HTML assets via Android WebView.
           files: app/build/outputs/apk/debug/app-debug.apk
-          draft: false
-          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
