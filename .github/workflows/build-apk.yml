@@ -32,6 +32,7 @@ jobs:
         run: |
           echo "sdk.dir=$ANDROID_HOME" > local.properties
           echo "ANDROID_HOME=$ANDROID_HOME"
+          which gradle
           gradle --version
 
       - name: Build Debug APK
@@ -50,7 +51,7 @@ jobs:
         with:
           tag_name: v1.0.0
           name: LuntikWallet v1.0.0
-          body: LuntikWallet debug APK with black-red-white WebView UI. applicationId com.luntik.wallet
+          body: LuntikWallet debug APK. Black-red-white WebView UI. applicationId com.luntik.wallet
           files: app/build/outputs/apk/debug/*.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
