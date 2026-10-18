@@ -20,27 +20,29 @@ jobs:
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
-        with:
-          packages: 'platforms;android-34 platform-tools build-tools;34.0.0'
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
-        with:
-          gradle-version: '8.2'
-          cache-disabled: true
+      - name: Install Gradle
+        run: |
+          wget -q https://services.gradle.org/distributions/gradle-8.2-bin.zip
+          unzip -q gradle-8.2-bin.zip
+          sudo mv gradle-8.2 /opt/gradle
+          echo "/opt/gradle/bin" >> $GITHUB_PATH
 
       - name: Create local.properties
-        run: echo "sdk.dir=$ANDROID_HOME" > local.properties
+        run: |
+          echo "sdk.dir=$ANDROID_HOME" > local.properties
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          gradle --version
 
       - name: Build Debug APK
-        run: gradle assembleDebug --no-daemon --stacktrace --offline || gradle assembleDebug --no-daemon --stacktrace
+        run: gradle assembleDebug --no-daemon --stacktrace
 
       - name: Upload APK
         if: success()
         uses: actions/upload-artifact@v4
         with:
           name: LuntikWallet-debug.apk
-          path: app/build/outputs/apk/debug/app-debug.apk
+          path: app/build/outputs/apk/debug/*.apk
 
       - name: Create Release
         if: success()
@@ -48,10 +50,7 @@ jobs:
         with:
           tag_name: v1.0.0
           name: LuntikWallet v1.0.0
-          body: |
-            LuntikWallet debug APK
-            Black-red-white HTML interface via WebView
-            applicationId: com.luntik.wallet
-          files: app/build/outputs/apk/debug/app-debug.apk
+          body: LuntikWallet debug APK with black-red-white WebView UI. applicationId com.luntik.wallet
+          files: app/build/outputs/apk/debug/*.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
